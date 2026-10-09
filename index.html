@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naassen Project XIII - Visitor Safety Portal & HSE Kiosk</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        steg: {
+                            blue: '#00529B',
+                            red: '#E30613',
+                            orange: '#FF6B00',
+                            amber: '#F59E0B',
+                            dark: '#0F172A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Cairo', 'sans-serif'],
+                        arabic: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .rtl { direction: rtl; }
+        .ltr { direction: ltr; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-full text-slate-100 font-sans antialiased bg-slate-950 flex flex-col selection:bg-orange-500 selection:text-white">
+
+    <!-- TOP HEADER / BRANDING BANNER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logos & Title -->
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div class="flex items-center bg-white p-2 rounded-lg shadow-sm">
+                        <div class="text-steg-blue font-black text-xl tracking-tighter">STEG</div>
+                        <span class="mx-1 text-slate-300">|</span>
+                        <div class="text-steg-red font-bold text-sm">MPI</div>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold text-white tracking-wide leading-tight">
+                            <span id="txt-app-title">Projet Naassen XIII</span>
+                        </h1>
+                        <p class="text-xs text-amber-400 font-medium flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="txt-sub-title">Portail Sécurité Visiteurs & Kiosque HSE</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Language Switcher & Emergency Badge -->
+                <div class="flex items-center gap-3">
+                    <!-- Emergency Direct Dial Button -->
+                    <a href="tel:198" class="hidden sm:flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all shadow-md animate-pulse">
+                        <i data-lucide="phone-call" class="w-4 h-4">
+                        <span id="txt-urgency-btn">URGENCE 198</span>
+                    </a>
+
+                    <!-- Language Pills -->
+                    <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-semibold">
+                        <button onclick="setLanguage('fr')" id="lang-fr" class="px-2.5 py-1.5 rounded-lg transition-all bg-orange-600 text-white shadow">FR</button>
+                        <button onclick="setLanguage('ar')" id="lang-ar" class="px-2.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">عربي</button>
+                        <button onclick="setLanguage('en')" id="lang-en" class="px-2.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white">EN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN NAVIGATION TABS -->
+    <nav class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-20 z-40">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex overflow-x-auto no-scrollbar space-x-1 sm:space-x-4 py-2 text-xs sm:text-sm font-medium rtl:space-x-reverse" id="nav-tabs">
+                <button onclick="switchTab('induction')" id="tab-induction" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap bg-orange-600 text-white font-semibold shadow">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span id="tab-txt-induction">Accès & Induction</span>
+                </button>
+                <button onclick="switchTab('traffic')" id="tab-traffic" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="map" class="w-4 h-4"></i>
+                    <span id="tab-txt-traffic">Plan du Site & Circulation</span>
+                </button>
+                <button onclick="switchTab('report')" id="tab-report" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    <span id="tab-txt-report">Signaler un Danger</span>
+                </button>
+                <button onclick="switchTab('feedback')" id="tab-feedback" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="message-square-heart" class="w-4 h-4"></i>
+                    <span id="tab-txt-feedback">Avis Visiteur</span>
+                </button>
+                <button onclick="switchTab('contacts')" id="tab-contacts" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    <span id="tab-txt-contacts">Urgences HSE</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ================= SECTION 1: INDUCTION & CHECK-IN ================= -->
+        <section id="view-induction" class="space-y-6">
+            <!-- Welcome Alert Banner -->
+            <div class="bg-gradient-to-r from-amber-600/20 via-slate-800 to-slate-800 border-l-4 border-amber-500 p-4 rounded-xl shadow-md">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="info" class="w-6 h-6 text-amber-400 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h2 class="text-base font-bold text-amber-300" id="induc-welcome-title">Bienvenue sur le Poste Haute Tension 225kV Naassen XIII</h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1" id="induc-welcome-desc">
+                            Pour votre sécurité et celle des équipes STEG/MPI, veuillez prendre connaissance des consignes de sécurité obligatoires avant d'accéder au chantier.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Golden Rules / PPE Checklist -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="hard-hat" class="w-5 h-5 text-orange-500"></i>
+                            <span id="induc-ppe-title">Équipements de Protection Individuelle (EPI) Obligatoires</span>
+                        </h3>
+                        <span class="text-xs bg-orange-500/10 text-orange-400 border border-orange-500/30 px-2.5 py-1 rounded-full font-semibold">100% EPI Zone</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-xl text-center border border-slate-700/50 hover:border-orange-500 transition-all">
+                            <div class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="hard-hat" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-200 block" id="ppe-casque">Casque avec Jugulaire</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-xl text-center border border-slate-700/50 hover:border-orange-500 transition-all">
+                            <div class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="footprints" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-200 block" id="ppe-chaussures">Chaussures de Sécurité</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-xl text-center border border-slate-700/50 hover:border-orange-500 transition-all">
+                            <div class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="shirt" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-200 block" id="ppe-gilet">Gilet Haute Visibilité</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-xl text-center border border-slate-700/50 hover:border-orange-500 transition-all">
+                            <div class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i data-lucide="glasses" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-200 block" id="ppe-lunettes">Lunettes de Protection</span>
+                        </div>
+                    </div>
+
+                    <!-- Key Rules List -->
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-sm font-bold text-slate-300" id="induc-rules-title">Règles Vitales du Chantier :</h4>
+                        <ul class="space-y-2 text-xs sm:text-sm text-slate-300">
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span id="rule-1">Vitesse maximale autorisée pour véhicules : 15 km/h.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span id="rule-2">Interdiction stricte de fumer hors des zones désignées.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span id="rule-3">Accès interdit aux zones HTA / GIS sans autorisation spécifique (PTW).</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                <span id="rule-4">Signalement immédiat de tout comportement ou situation dangereuse.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Digital Express Check-In -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-4">
+                            <i data-lucide="user-check" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="text-base font-bold text-white" id="checkin-title">Enregistrement Visiteur Express</h3>
+                        </div>
+                        
+                        <form id="checkin-form" onsubmit="handleCheckin(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-fullname">Nom & Prénom *</label>
+                                <input type="text" required placeholder="Ex: Mohamed Ben Ali" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-company">Société / Organisme *</label>
+                                <input type="text" required placeholder="Ex: STEG / Sous-traitant / Expert" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-phone">N° Téléphone *</label>
+                                <input type="tel" required placeholder="Ex: +216 98 000 000" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-host">Agent Hôte STEG / MPI</label>
+                                <input type="text" placeholder="Nom du responsable sur site" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                            </div>
+                            <div class="flex items-start gap-2 pt-1">
+                                <input type="checkbox" id="checkin-ack" required class="mt-1 rounded bg-slate-800 border-slate-700 text-orange-600 focus:ring-orange-500">
+                                <label for="checkin-ack" class="text-xs text-slate-400" id="lbl-ack">
+                                    J'atteste avoir pris connaissance des consignes de sécurité du projet Naassen XIII.
+                                </label>
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+                                <i data-lucide="qr-code" class="w-4 h-4"></i>
+                                <span id="btn-checkin">Valider mon Accès</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="checkin-success" class="hidden bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-xl text-center mt-4">
+                        <i data-lucide="check-circle" class="w-10 h-10 text-emerald-400 mx-auto mb-2"></i>
+                        <h4 class="text-sm font-bold text-emerald-300" id="msg-checkin-ok">Accès Enregistré avec Succès !</h4>
+                        <p class="text-xs text-emerald-200/80 mt-1" id="msg-checkin-sub">Présentez cet écran au poste de garde à l'entrée.</p>
+                        <div class="mt-3 bg-white p-2 w-24 h-24 mx-auto rounded-lg shadow-inner flex items-center justify-center">
+                            <!-- QR Code Placeholder -->
+                            <i data-lucide="qr-code" class="w-20 h-20 text-slate-900"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: INTERACTIVE MAP & TRAFFIC ================= -->
+        <section id="view-traffic" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-5 h-5 text-amber-500"></i>
+                            <span id="map-title">Plan Interactif du Site & Circulation</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1" id="map-sub">Cliquez sur une zone pour afficher les détails et consignes spécifiques.</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> <span id="legend-assembly">Point de Rassemblement</span></span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> <span id="legend-restricted">Zone Réglementée</span></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Interactive Visual Grid -->
+                    <div class="lg:col-span-2 bg-slate-950 border border-slate-800 p-4 rounded-xl relative overflow-hidden min-h-[320px] flex flex-col justify-between">
+                        <!-- Background Grid lines -->
+                        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30"></div>
+
+                        <!-- Interactive Zones -->
+                        <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <button onclick="selectZone('gis')" class="zone-btn p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-amber-400">Zone A</span>
+                                    <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-white mt-1 group-hover:text-orange-400">Bâtiment GIS 225kV</div>
+                                <div class="text-[10px] text-slate-400 mt-1">EPI complet requis</div>
+                            </button>
+
+                            <button onclick="selectZone('command')" class="zone-btn p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-emerald-400">Zone B</span>
+                                    <i data-lucide="building-2" class="w-4 h-4 text-emerald-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-white mt-1 group-hover:text-orange-400">Bâtiment Commande</div>
+                                <div class="text-[10px] text-slate-400 mt-1">Salles de contrôle</div>
+                            </button>
+
+                            <button onclick="selectZone('transfo')" class="zone-btn p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-red-400">Zone C</span>
+                                    <i data-lucide="alert-octagon" class="w-4 h-4 text-red-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-white mt-1 group-hover:text-orange-400">Fosse Transfo & Huile</div>
+                                <div class="text-[10px] text-slate-400 mt-1">Danger Incendie</div>
+                            </button>
+
+                            <button onclick="selectZone('ais')" class="zone-btn p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-amber-400">Zone D</span>
+                                    <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-white mt-1 group-hover:text-orange-400">Poste Extérieur AIS</div>
+                                <div class="text-[10px] text-slate-400 mt-1">Haute Tension</div>
+                            </button>
+
+                            <button onclick="selectZone('assembly')" class="zone-btn p-3 bg-emerald-950/50 hover:bg-emerald-900/50 border border-emerald-600/50 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-emerald-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-emerald-400">Zone E</span>
+                                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-emerald-200 mt-1">Rassemblement Evac</div>
+                                <div class="text-[10px] text-emerald-400 mt-1">Portail Principal</div>
+                            </button>
+
+                            <button onclick="selectZone('gate')" class="zone-btn p-3 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl text-left rtl:text-right transition-all group focus:ring-2 focus:ring-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-blue-400">Zone F</span>
+                                    <i data-lucide="shield" class="w-4 h-4 text-blue-400"></i>
+                                </div>
+                                <div class="text-sm font-semibold text-white mt-1 group-hover:text-orange-400">Poste de Garde</div>
+                                <div class="text-[10px] text-slate-400 mt-1">Contrôle d'accès</div>
+                            </button>
+                        </div>
+
+                        <!-- Speed & Direction Indicator -->
+                        <div class="relative z-10 mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+                            <span class="flex items-center gap-1 text-amber-400 font-semibold">
+                                <i data-lucide="gauge" class="w-4 h-4"></i> Vitesse Max : 15 km/h
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="arrow-right-left" class="w-4 h-4 text-blue-400"></i> Sens Unique de Circulation Actif
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Selected Zone Details Panel -->
+                    <div id="zone-details" class="bg-slate-800/50 border border-slate-700 p-5 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 text-orange-400 mb-2">
+                                <i data-lucide="info" class="w-5 h-5"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Fiche de Sécurité Zone</span>
+                            </div>
+                            <h3 id="zd-title" class="text-base font-bold text-white mb-2">Bâtiment GIS 225kV</h3>
+                            <p id="zd-desc" class="text-xs text-slate-300 leading-relaxed mb-4">
+                                Zone contenant les appareillages blindés à isolation gazeuse SF6. Accès restreint au personnel habilité.
+                            </p>
+                            <div class="space-y-2">
+                                <div class="text-xs font-semibold text-slate-400">Consignes Spécifiques :</div>
+                                <ul id="zd-rules" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                                    <li>Port du casque et lunettes obligatoire.</li>
+                                    <li>Autorisation de travail (PTW) requise pour intervention.</li>
+                                    <li>Interdiction d'apports de feux nus.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                            <span>Niveau de Risque :</span>
+                            <span id="zd-risk" class="px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Modéré</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: HAZARD / NEAR MISS REPORTING ================= -->
+        <section id="view-report" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl max-w-3xl mx-auto">
+                <div class="border-b border-slate-800 pb-4 mb-6">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-500"></i>
+                        <span id="rep-title">Signaler un Danger ou Presque-Accident (Near Miss)</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1" id="rep-sub">
+                        Votre contribution permet d'améliorer la sécurité sur le site. Les signalements peuvent être anonymes.
+                    </p>
+                </div>
+
+                <form id="hazard-form" onsubmit="handleHazardSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-rep-zone">Zone du Signalement *</label>
+                            <select required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                                <option value="">Sélectionnez une zone...</option>
+                                <option value="gis">Zone A - Bâtiment GIS 225kV</option>
+                                <option value="command">Zone B - Bâtiment de Commande</option>
+                                <option value="transfo">Zone C - Fosse Transfo & Huile</option>
+                                <option value="ais">Zone D - Poste Extérieur AIS</option>
+                                <option value="pistes">Voies de circulation / Pistes</option>
+                                <option value="autre">Autre emplacement</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-rep-cat">Catégorie de Risque *</label>
+                            <select required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+                                <option value="">Sélectionnez la catégorie...</option>
+                                <option value="chute">Chute d'objet / Obstacle au sol</option>
+                                <option value="elec">Risque Électrique / Câble dénudé</option>
+                                <option value="incendie">Risque Incendie / Produit inflammable</option>
+                                <option value="epi">Non-port d'EPI / Non-respect règle</option>
+                                <option value="fouille">Excavation non sécurisée</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-rep-desc">Description détaillée de l'anomalie *</label>
+                        <textarea required rows="3" placeholder="Décrivez la situation observée..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-rep-photo">Joindre une photo (optionnel)</label>
+                            <input type="file" accept="image/*" onchange="previewImage(event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-orange-400 hover:file:bg-slate-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-rep-level">Niveau de Gravisse Estimé</label>
+                            <div class="flex gap-2">
+                                <label class="flex-1 text-center py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-semibold text-emerald-400 cursor-pointer hover:border-emerald-500">
+                                    <input type="radio" name="risk_level" value="low" class="sr-only" checked> Faible
+                                </label>
+                                <label class="flex-1 text-center py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-semibold text-amber-400 cursor-pointer hover:border-amber-500">
+                                    <input type="radio" name="risk_level" value="medium" class="sr-only"> Moyen
+                                </label>
+                                <label class="flex-1 text-center py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-semibold text-red-400 cursor-pointer hover:border-red-500">
+                                    <input type="radio" name="risk_level" value="high" class="sr-only"> Élevé
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Photo Preview Box -->
+                    <div id="img-preview-container" class="hidden">
+                        <img id="img-preview" src="" alt="Preview" class="h-32 rounded-lg border border-slate-700 object-cover">
+                    </div>
+
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span id="btn-rep-send">Envoyer le Signalement HSE</span>
+                    </button>
+                </form>
+
+                <div id="rep-success" class="hidden bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-xl text-center mt-4">
+                    <i data-lucide="check-circle" class="w-10 h-10 text-emerald-400 mx-auto mb-2"></i>
+                    <h4 class="text-sm font-bold text-emerald-300" id="msg-rep-ok">Signalement Transmis au Bureau HSE STEG/MPI</h4>
+                    <p class="text-xs text-emerald-200/80 mt-1" id="msg-rep-sub">Merci d'avoir contribué à la sécurité du chantier.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: VISITOR HSE FEEDBACK ================= -->
+        <section id="view-feedback" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl max-w-2xl mx-auto">
+                <div class="border-b border-slate-800 pb-4 mb-6 text-center">
+                    <h2 class="text-lg font-bold text-white flex items-center justify-center gap-2">
+                        <i data-lucide="star" class="w-5 h-5 text-amber-400"></i>
+                        <span id="fb-title">Votre Avis sur la Sécurité du Site</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1" id="fb-sub">
+                        Aidez-nous à améliorer les conditions d'accueil et les standards HSE sur le projet.
+                    </p>
+                </div>
+
+                <form id="feedback-form" onsubmit="handleFeedbackSubmit(event)" class="space-y-6">
+                    <!-- Rating Stars -->
+                    <div class="text-center space-y-2">
+                        <label class="block text-xs font-medium text-slate-300" id="lbl-rating">Note Globale d'Accueil HSE :</label>
+                        <div class="flex justify-center gap-2 text-2xl text-slate-600" id="star-rating">
+                            <button type="button" onclick="setRating(1)" class="star-btn hover:text-amber-400 transition-colors">★</button>
+                            <button type="button" onclick="setRating(2)" class="star-btn hover:text-amber-400 transition-colors">★</button>
+                            <button type="button" onclick="setRating(3)" class="star-btn hover:text-amber-400 transition-colors">★</button>
+                            <button type="button" onclick="setRating(4)" class="star-btn hover:text-amber-400 transition-colors">★</button>
+                            <button type="button" onclick="setRating(5)" class="star-btn hover:text-amber-400 transition-colors">★</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1" id="lbl-fb-comment">Commentaires / Suggestions d'amélioration</label>
+                        <textarea rows="3" placeholder="Qualité des EPI, clarté de l'induction, signalétique..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span id="btn-fb-send">Soumettre mon Avis</span>
+                    </button>
+                </form>
+
+                <!-- Live Feedback Stats -->
+                <div class="mt-8 pt-6 border-t border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3" id="fb-recent-title">Derniers Retours Visiteurs :</h3>
+                    <div class="space-y-3" id="feedback-list">
+                        <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50 text-xs">
+                            <div class="flex justify-between text-amber-400 mb-1">
+                                <span>★★★★★</span>
+                                <span class="text-slate-400 text-[10px]">Aujourd'hui - Expert STEG</span>
+                            </div>
+                            <p class="text-slate-300">"Accueil très professionnel et consignes de sécurité très claires au poste de garde."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 5: EMERGENCY CONTACTS ================= -->
+        <section id="view-contacts" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="border-b border-slate-800 pb-4 mb-6">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i data-lucide="phone-call" class="w-5 h-5 text-red-500"></i>
+                        <span id="cont-title">Numéros d'Urgence & Secours HSE</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1" id="cont-sub">
+                        En cas d'incident, accident ou départ de feu, contactez immédiatement les services ci-dessous.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Protection Civile -->
+                    <a href="tel:198" class="bg-red-950/40 border border-red-800/60 hover:border-red-500 p-5 rounded-2xl transition-all group flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 bg-red-600 text-white rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                <i data-lucide="flame" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-white">Protection Civile</h3>
+                            <p class="text-xs text-red-200/80 mt-1">Pompiers & Secours Incendie</p>
+                        </div>
+                        <div class="mt-4 text-2xl font-black text-red-400">198</div>
+                    </a>
+
+                    <!-- SAMU -->
+                    <a href="tel:190" class="bg-blue-950/40 border border-blue-800/60 hover:border-blue-500 p-5 rounded-2xl transition-all group flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-white">SAMU Medical</h3>
+                            <p class="text-xs text-blue-200/80 mt-1">Urgences Médicales</p>
+                        </div>
+                        <div class="mt-4 text-2xl font-black text-blue-400">190</div>
+                    </a>
+
+                    <!-- Site HSE Desk -->
+                    <div class="bg-amber-950/40 border border-amber-800/60 p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center mb-3">
+                                <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-white">Bureau HSE Naassen</h3>
+                            <p class="text-xs text-amber-200/80 mt-1">Poste de Garde / PC Sécurité Chantier</p>
+                        </div>
+                        <div class="mt-4 text-xl font-bold text-amber-400">+216 71 000 198</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto text-xs text-slate-500 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Projet Naassen Phase XIII — Société Tunisienne de l'Électricité et du Gaz (STEG) / MPI</p>
+            <p class="mt-1 text-[10px] text-slate-600">Système de Gestion HSE Visiteurs • Version 3.2</p>
+        </div>
+    </footer>
+
+    <script>
+        // Translations Dictionary
+        const translations = {
+            fr: {
+                appTitle: "Projet Naassen XIII",
+                subTitle: "Portail Sécurité Visiteurs & Kiosque HSE",
+                urgencyBtn: "URGENCE 198",
+                tabInduction: "Accès & Induction",
+                tabTraffic: "Plan du Site & Circulation",
+                tabReport: "Signaler un Danger",
+                tabFeedback: "Avis Visiteur",
+                tabContacts: "Urgences HSE",
+                inducWelcomeTitle: "Bienvenue sur le Poste Haute Tension 225kV Naassen XIII",
+                inducWelcomeDesc: "Pour votre sécurité et celle des équipes STEG/MPI, veuillez prendre connaissance des consignes de sécurité obligatoires avant d'accéder au chantier.",
+                inducPpeTitle: "Équipements de Protection Individuelle (EPI) Obligatoires",
+                ppeCasque: "Casque avec Jugulaire",
+                ppeChaussures: "Chaussures de Sécurité",
+                ppeGilet: "Gilet Haute Visibilité",
+                ppeLunettes: "Lunettes de Protection",
+                rulesTitle: "Règles Vitales du Chantier :",
+                rule1: "Vitesse maximale autorisée pour véhicules : 15 km/h.",
+                rule2: "Interdiction stricte de fumer hors des zones désignées.",
+                rule3: "Accès interdit aux zones HTA / GIS sans autorisation spécifique (PTW).",
+                rule4: "Signalement immédiat de tout comportement ou situation dangereuse.",
+                checkinTitle: "Enregistrement Visiteur Express",
+                lblFullname: "Nom & Prénom *",
+                lblCompany: "Société / Organisme *",
+                lblPhone: "N° Téléphone *",
+                lblHost: "Agent Hôte STEG / MPI",
+                lblAck: "J'atteste avoir pris connaissance des consignes de sécurité du projet Naassen XIII.",
+                btnCheckin: "Valider mon Accès",
+                msgCheckinOk: "Accès Enregistré avec Succès !",
+                msgCheckinSub: "Présentez cet écran au poste de garde à l'entrée."
+            },
+            ar: {
+                appTitle: "مشروع نعسان 13",
+                subTitle: "بوابة السلامة للزوار والخدمة الذاتية HSE",
+                urgencyBtn: "طوارئ 198",
+                tabInduction: "الدخول والإرشادات",
+                tabTraffic: "مخطط الموقع والمرور",
+                tabReport: "الإبلاغ عن خطر",
+                tabFeedback: "رأي الزائر",
+                tabContacts: "طوارئ السلامة",
+                inducWelcomeTitle: "مرحبًا بكم في محطة الجهد العالي 225 كيلوفولت نعسان 13",
+                inducWelcomeDesc: "لضمان سلامتكم وسلامة فرق STEG/MPI، يرجى الاطلاع على تعليمات السلامة الإلزامية قبل دخول الموقع.",
+                inducPpeTitle: "معدات الحماية الفردية (EPI) الإلزامية",
+                ppeCasque: "خوذة أمان مع حزام",
+                ppeChaussures: "أحذية أمان مقواة",
+                ppeGilet: "سترة عاكسة للضوء",
+                ppeLunettes: "نظارات حماية",
+                rulesTitle: "القواعد الأساسية للموقع:",
+                rule1: "السرعة القصوى المسموح بها للمركبات: 15 كم/ساعة.",
+                rule2: "يمنع منعاً باتاً التدخين خارج المناطق المخصصة.",
+                rule3: "يمنع الدخول إلى مناطق GIS / HTA بدون تصريح عمل (PTW).",
+                rule4: "الإبلاغ الفوري عن أي سلوك أو وضع خطير.",
+                checkinTitle: "تسجيل الزوار السريع",
+                lblFullname: "الاسم واللقب *",
+                lblCompany: "الشركة / المؤسسة *",
+                lblPhone: "رقم الهاتف *",
+                lblHost: "المسؤول المستضيف (STEG / MPI)",
+                lblAck: "أقر بأني اطلعت على تعليمات السلامة الخاصة بمشروع نعسان 13.",
+                btnCheckin: "تأكيد الدخول",
+                msgCheckinOk: "تم تسجيل الدخول بنجاح!",
+                msgCheckinSub: "يرجى إبراز هذه الشاشة عند مكتب الحراسة بالمدخل."
+            },
+            en: {
+                appTitle: "Naassen Project XIII",
+                subTitle: "Visitor Safety Portal & HSE Kiosk",
+                urgencyBtn: "EMERGENCY 198",
+                tabInduction: "Access & Induction",
+                tabTraffic: "Site Map & Traffic",
+                tabReport: "Report a Hazard",
+                tabFeedback: "Visitor Feedback",
+                tabContacts: "HSE Emergency",
+                inducWelcomeTitle: "Welcome to the Naassen XIII 225kV High Voltage Substation",
+                inducWelcomeDesc: "For your safety and that of STEG/MPI teams, please read the mandatory safety instructions before entering the site.",
+                inducPpeTitle: "Mandatory Personal Protective Equipment (PPE)",
+                ppeCasque: "Helmet with Chin Strap",
+                ppeChaussures: "Safety Footwear",
+                ppeGilet: "High-Visibility Vest",
+                ppeLunettes: "Safety Glasses",
+                rulesTitle: "Vital Site Rules:",
+                rule1: "Maximum allowed speed for vehicles: 15 km/h.",
+                rule2: "Smoking strictly prohibited outside designated areas.",
+                rule3: "No access to MV / GIS zones without a Permit to Work (PTW).",
+                rule4: "Immediate reporting of any unsafe condition or behavior.",
+                checkinTitle: "Express Visitor Check-In",
+                lblFullname: "Full Name *",
+                lblCompany: "Company / Organization *",
+                lblPhone: "Phone Number *",
+                lblHost: "STEG / MPI Host Officer",
+                lblAck: "I acknowledge that I have read the Naassen XIII safety rules.",
+                btnCheckin: "Validate My Access",
+                msgCheckinOk: "Access Registered Successfully!",
+                msgCheckinSub: "Show this screen at the security gate upon entry."
+            }
+        };
+
+        // Current Language State
+        let currentLang = 'fr';
+        let currentRating = 5;
+
+        // Zone Info Database
+        const zoneData = {
+            gis: {
+                title: "Zone A - Bâtiment GIS 225kV",
+                desc: "Local contenant les appareillages blindés SF6 à haute tension. Zone à haut risque électrique.",
+                rules: ["Port du casque et gilet obligatoire", "Accès strictement réservé aux personnes habilitées (PTW)", "Aucun matériel inflammable autorisé"],
+                risk: "Élevé"
+            },
+            command: {
+                title: "Zone B - Bâtiment de Commande",
+                desc: "Salles de contrôle, automates et protection du réseau électrique.",
+                rules: ["Accès visiteurs sur autorisation", "Interdiction de toucher aux armoires électriques", "Tenir les voies d'évacuation dégagées"],
+                risk: "Faible"
+            },
+            transfo: {
+                title: "Zone C - Fosse Transfo & Huile",
+                desc: "Zone des transformateurs de puissance avec cuve de rétention d'huile.",
+                rules: ["Danger d'incendie et d'électrocution", "EPI complets + chaussures antidérapantes", "Extincteurs à proximité obligatoire"],
+                risk: "Critique"
+            },
+            ais: {
+                title: "Zone D - Poste Extérieur AIS",
+                desc: "Jeu de barres et sectionneurs extérieurs 225kV.",
+                rules: ["Respecter les distances de sécurité électrique", "Ne pas lever de perches ou d'objets longs", "Casque obligatoire en permanence"],
+                risk: "Élevé"
+            },
+            assembly: {
+                title: "Zone E - Point de Rassemblement",
+                desc: "Zone sécurisée pour évacuation en cas d'urgence située près du portail principal.",
+                rules: ["Garder la zone libre de tout véhicule", "Suivre les consignes du sergent d'évacuation", "Rester groupé lors de l'appel"],
+                risk: "Sécurisé"
+            },
+            gate: {
+                title: "Zone F - Poste de Garde",
+                desc: "Point d'enregistrement, délivrance des badges et vérification des EPI.",
+                rules: ["Présentation de pièce d'identité obligatoire", "Signature du registre d'accès", "Badge visiteur visible en permanence"],
+                risk: "Contrôlé"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            const htmlEl = document.documentElement;
+
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.classList.add('font-arabic');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.classList.remove('font-arabic');
+            }
+
+            // Update UI texts
+            document.getElementById('txt-app-title').innerText = t.appTitle;
+            document.getElementById('txt-sub-title').innerText = t.subTitle;
+            document.getElementById('txt-urgency-btn').innerText = t.urgencyBtn;
+            
+            document.getElementById('tab-txt-induction').innerText = t.tabInduction;
+            document.getElementById('tab-txt-traffic').innerText = t.tabTraffic;
+            document.getElementById('tab-txt-report').innerText = t.tabReport;
+            document.getElementById('tab-txt-feedback').innerText = t.tabFeedback;
+            document.getElementById('tab-txt-contacts').innerText = t.tabContacts;
+
+            document.getElementById('induc-welcome-title').innerText = t.inducWelcomeTitle;
+            document.getElementById('induc-welcome-desc').innerText = t.inducWelcomeDesc;
+            document.getElementById('induc-ppe-title').innerText = t.inducPpeTitle;
+            
+            document.getElementById('ppe-casque').innerText = t.ppeCasque;
+            document.getElementById('ppe-chaussures').innerText = t.ppeChaussures;
+            document.getElementById('ppe-gilet').innerText = t.ppeGilet;
+            document.getElementById('ppe-lunettes').innerText = t.ppeLunettes;
+
+            document.getElementById('induc-rules-title').innerText = t.rulesTitle;
+            document.getElementById('rule-1').innerText = t.rule1;
+            document.getElementById('rule-2').innerText = t.rule2;
+            document.getElementById('rule-3').innerText = t.rule3;
+            document.getElementById('rule-4').innerText = t.rule4;
+
+            document.getElementById('checkin-title').innerText = t.checkinTitle;
+            document.getElementById('lbl-fullname').innerText = t.lblFullname;
+            document.getElementById('lbl-company').innerText = t.lblCompany;
+            document.getElementById('lbl-phone').innerText = t.lblPhone;
+            document.getElementById('lbl-host').innerText = t.lblHost;
+            document.getElementById('lbl-ack').innerText = t.lblAck;
+            document.getElementById('btn-checkin').innerText = t.btnCheckin;
+
+            document.getElementById('msg-checkin-ok').innerText = t.msgCheckinOk;
+            document.getElementById('msg-checkin-sub').innerText = t.msgCheckinSub;
+
+            // Language Pill highlight
+            ['fr', 'ar', 'en'].forEach(l => {
+                const btn = document.getElementById(`lang-${l}`);
+                if (l === lang) {
+                    btn.className = "px-2.5 py-1.5 rounded-lg transition-all bg-orange-600 text-white shadow";
+                } else {
+                    btn.className = "px-2.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white";
+                }
+            });
+        }
+
+        function switchTab(tabId) {
+            const views = ['induction', 'traffic', 'report', 'feedback', 'contacts'];
+            views.forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${v}`);
+                btn.className = "tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white";
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.className = "tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg whitespace-nowrap bg-orange-600 text-white font-semibold shadow";
+        }
+
+        function selectZone(zoneKey) {
+            const z = zoneData[zoneKey];
+            if (!z) return;
+
+            document.getElementById('zd-title').innerText = z.title;
+            document.getElementById('zd-desc').innerText = z.desc;
+            document.getElementById('zd-risk').innerText = z.risk;
+
+            const rulesList = document.getElementById('zd-rules');
+            rulesList.innerHTML = z.rules.map(r => `<li>${r}</li>`).join('');
+        }
+
+        function handleCheckin(e) {
+            e.preventDefault();
+            document.getElementById('checkin-form').classList.add('hidden');
+            document.getElementById('checkin-success').classList.remove('hidden');
+        }
+
+        function handleHazardSubmit(e) {
+            e.preventDefault();
+            document.getElementById('hazard-form').classList.add('hidden');
+            document.getElementById('rep-success').classList.remove('hidden');
+        }
+
+        function previewImage(event) {
+            const container = document.getElementById('img-preview-container');
+            const img = document.getElementById('img-preview');
+            const file = event.target.files[0];
+            if (file) {
+                img.src = URL.createObjectURL(file);
+                container.classList.remove('hidden');
+            }
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            const buttons = document.querySelectorAll('.star-btn');
+            buttons.forEach((btn, index) => {
+                if (index < rating) {
+                    btn.classList.add('text-amber-400');
+                    btn.classList.remove('text-slate-600');
+                } else {
+                    btn.classList.remove('text-amber-400');
+                    btn.classList.add('text-slate-600');
+                }
+            });
+        }
+
+        function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            const list = document.getElementById('feedback-list');
+            const stars = '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating);
+            const newItem = document.createElement('div');
+            newItem.className = "bg-slate-800/60 p-3 rounded-lg border border-slate-700/50 text-xs animate-fade-in";
+            newItem.innerHTML = `
+                <div class="flex justify-between text-amber-400 mb-1">
+                    <span>${stars}</span>
+                    <span class="text-slate-400 text-[10px]">À l'instant - Visiteur</span>
+                </div>
+                <p class="text-slate-300">"Merci pour l'accueil et la clarté du portail de sécurité."</p>
+            `;
+            list.prepend(newItem);
+            alert("Merci pour votre avis ! Votre retour a été enregistré.");
+            document.getElementById('feedback-form').reset();
+            setRating(5);
+        }
+
+        // Initialize Lucide Icons & Defaults
+        window.onload = function() {
+            lucide.createIcons();
+            setRating(5);
+        };
+    </script>
+</body>
+</html>
